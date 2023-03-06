@@ -61,9 +61,26 @@
           </div>
         </div>
       </div>
-      <div class="section">
+      <div class="section-right">
         <h2 class="section-header">Your Friends:</h2>
         <div class="output-container">
+          <table class="table table-striped" v-if="friendsLists">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="user in this.friendsLists" :key="user.username">
+                <td>{{user.username}}</td>
+                <td>{{ user.points }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div v-if="!friendsLists">
+            <p>Looks like, you have not added Friends yet! :(</p>
+          </div>
 
         </div>
       </div>
@@ -115,6 +132,17 @@ export default {
         }
       })
       this.userPoints = user.data.points
+    } catch (e) {
+      console.log(e)
+    }
+    try {
+      const currentUser = await axios.get('/getFriends', {
+        params: {
+          _id: this.user._id
+        }
+      })
+      this.friendsLists = currentUser.data
+      console.log(this.friendsLists)
     } catch (e) {
       console.log(e)
     }
@@ -217,6 +245,19 @@ export default {
   width: 90%;
 }
 
+.section-right {
+  float: right;
+  height: 100%;
+  flex: 1 1 100%;
+  max-width: 250px;
+  margin: 20px;
+  background-color: #f2f2f2;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.8vw;
+  width: 50%;
+}
+
 @media (min-width: 768px) {
   .section {
     flex: 1 1 calc((100% - 60px) / 3);
@@ -253,7 +294,7 @@ textarea {
 .output-container {
   border: 1px solid #ccc;
   border-radius: 3px;
-  padding: 10px;
+  padding: 1vh;
   max-height: 20vh;
   overflow-y: auto;
 }

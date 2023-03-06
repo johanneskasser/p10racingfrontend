@@ -44,7 +44,7 @@ export default {
         credentials: 'include'
       })
       await this.$store.dispatch('setUser', '')
-      await this.$router.push('/login')
+      await this.$router.push('/')
     }
   }
 }

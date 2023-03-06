@@ -8,7 +8,7 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
-            path: '/login',
+            path: '/',
             component: Login
         },
         {
@@ -25,7 +25,7 @@ const router = createRouter({
 
 function guard(to,from,next) {
     if(store.state.user === null) {
-        next('/login');
+        next('/');
     } else {
         next();
     }
