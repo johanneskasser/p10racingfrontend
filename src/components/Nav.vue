@@ -43,7 +43,7 @@ export default {
         headers: {'Content-Type': 'application/json'},
         credentials: 'include'
       })
-      await this.$store.dispatch('setUser', '')
+      await this.$store.dispatch('removeUser', '')
       await this.$router.push('/')
     }
   }

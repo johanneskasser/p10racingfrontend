@@ -7,8 +7,8 @@
       <div class="section">
         <h2 class="section-header">Welcome to P10 Racing</h2>
         <div class="output-container">
-          <p>Basic Text Output:</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vel eros eu libero sollicitudin vestibulum. Nam euismod tristique eros, sed faucibus lorem venenatis sed. Vivamus pharetra, enim sit amet sagittis ullamcorper, elit elit tristique elit, vel fermentum metus leo vitae orci. Sed dapibus sapien euismod mi blandit, vel laoreet nulla consequat. Mauris eget turpis id metus aliquam congue vel eu enim.</p>
+          <p>P10 Racing takes a new approach to enjoying Formula 1 racing.<br> More excitement through a new way of looking at things. P10 Racing is about taking a closer look at the midfield of the paddock instead of betting on the first and best drivers. This is where it gets really exciting. Every week, before a Grand Prix starts, P10 Racing players have to make a bet on who will finish the race in 10th place this weekend. The one who guesses it gets 20 points. Additional points will be given to those who guess the first DNF. On Monday after each race the points will be evaluated and saved. Add you colleagues and compete against them.<br>
+            Developed by: <a href="mailto:johanneskasser@outlook.de">Johannes Kasser</a></p>
         </div>
       </div>
       <div class="section" v-if="grandPrix">
@@ -30,7 +30,8 @@
       </div>
       <div class="section" v-if="!grandPrix">
         <h2 class="section-header">Place your bet:</h2>
-        <p>No upcoming races within one week! Please come back later!</p>
+        <p><b>Next Bet Voting starts in:</b></p>
+        <p><b>{{bet_days}}</b> days, <b>{{bet_hours}}</b> hours, <b>{{bet_minutes}}</b> minutes, <b>{{bet_seconds}}</b> seconds.  </p>
         <div class="input-container">
           <label>P10:</label>
           <input type="text" name="text1" disabled>
@@ -114,7 +115,13 @@ export default {
       bet_error_message: '',
       username_friend: '',
       add_friend_error: false,
-      add_friend_error_message: ''
+      add_friend_error_message: '',
+      bet_days: '',
+      bet_hours: '',
+      bet_minutes: '',
+      bet_seconds: '',
+      bet_startDate: '',
+      intervalId: null
     }
   },
   async beforeMount() {
@@ -123,7 +130,11 @@ export default {
       this.roundNr = upcomingRaceInfo.data.raceNr
       this.grandPrix = upcomingRaceInfo.data.raceName
     } catch (e) {
-      console.log(e)
+      const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+      const nextRace = new Date(e.response.data.nextRaceDate)
+      this.bet_startDate = new Date(nextRace.getTime()- oneWeekMs);
+      this.intervalId = setInterval(this.updateCountdown, 1000)
+
     }
     try {
       const user = await axios.get('/searchByUserName', {
@@ -196,6 +207,29 @@ export default {
         console.log(e)
         this.add_friend_error = true
         this.add_friend_error_message = e.response.data.message
+      }
+    },
+    updateCountdown() {
+      const now = new Date();
+      const difference = this.bet_startDate.getTime() - now.getTime();
+
+      if (difference <= 0) {
+        clearInterval(this.intervalId);
+        return;
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      this.bet_days = days;
+      this.bet_hours = hours;
+      this.bet_minutes = minutes;
+      this.bet_seconds = seconds;
+
+      if(days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
+        this.$forceUpdate()
       }
     }
   }

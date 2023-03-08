@@ -3,7 +3,7 @@ import { createStore } from 'vuex'
 const store = createStore({
     state() {
         return {
-            user: null
+            user: JSON.parse(localStorage.getItem('user'))
         }
     },
     getters: {
@@ -14,11 +14,19 @@ const store = createStore({
     actions: {
         setUser({ commit }, user) {
             commit('SET_USER', user)
+        },
+        removeUser({commit}) {
+            commit('REMOVE_USER')
         }
     },
     mutations: {
         SET_USER(state, user) {
             state.user = user
+            localStorage.setItem('user', JSON.stringify(user))
+        },
+        REMOVE_USER(state) {
+            state.user = null;
+            localStorage.removeItem('user')
         }
     }
 })
