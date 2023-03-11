@@ -4,7 +4,7 @@
       <div id="btn_navbar" class="navbar-brand float-left"><h1 id="movie" @click="handleClick">P10<span id="match">Racing</span></h1></div>
       <ul class="nav navbar-nav flex-row float-right" v-if="!user">
         <li class="nav-item">
-          <router-link to="/login" class="btn btn-outline-primary navbar_button">Login</router-link>
+          <router-link to="/" class="btn btn-outline-primary navbar_button">Login</router-link>
         </li>
         <li class="nav-item">
           <router-link to="/register" class="btn btn-outline-primary">Sign Up</router-link>
@@ -31,9 +31,9 @@ export default {
   methods: {
     async handleClick() {
       if(this.user) {
-        await this.$router.push('/')
+        await this.$router.push('/dashboard')
       } else {
-        await this.$router.push('/login')
+        await this.$router.push('/')
       }
     },
     async logout() {

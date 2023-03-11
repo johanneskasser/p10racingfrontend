@@ -71,7 +71,7 @@ export default {
               password: this.password
             }
           })
-          await this.$router.push('/login')
+          await this.$router.push('/')
         } catch (e) {
           if(e.response.status === 401) {
             this.this.password_error = true
