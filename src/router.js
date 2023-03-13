@@ -3,6 +3,7 @@ import Login from './components/Login'
 import Register from './components/Register'
 import store from "@/store/vuex";
 import Dashboard from "@/components/Dashboard";
+import UpdateBet from "./components/UpdateBet";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -18,6 +19,11 @@ const router = createRouter({
         {
             path: '/dashboard',
             component: Dashboard,
+            beforeEnter: guard
+        },
+        {
+            path: '/updateBet',
+            component: UpdateBet,
             beforeEnter: guard
         }
     ]

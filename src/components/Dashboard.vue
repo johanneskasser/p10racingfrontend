@@ -11,15 +11,15 @@
             Developed by: <a href="mailto:johanneskasser@outlook.de">Johannes Kasser</a></p>
         </div>
       </div>
-      <div class="section" v-if="grandPrix">
+      <div class="section" v-if="grandPrix && !setBet">
         <form @submit.prevent="handleSubmit">
           <h2 class="section-header">Place your bet</h2>
           <p>Placing bet for <b>{{grandPrix}}</b> - Round Nr.: <b>{{roundNr}}</b></p>
           <div class="input-container">
             <label for="p10in">P10:</label>
-            <input type="text" id="p10in" class="form-control form-control-lg" v-model='p10in' placeholder="Drivers Code (e.g. VER for Verstappen)">
+            <input type="text" id="p10in" class="form-control form-control-lg" v-model='p10in' placeholder="Drivers Code (e.g. VER for Verstappen)" required>
             <label for="firstDNFin">First DNF:</label>
-            <input type="text" id="firstDNFin" class="form-control form-control-lg" v-model='firstDNFin' placeholder="Drivers Code (e.g. HAM for Hamilton)">
+            <input type="text" id="firstDNFin" class="form-control form-control-lg" v-model='firstDNFin' placeholder="Drivers Code (e.g. HAM for Hamilton)" required>
             <button type="submit" id="btn_submit_bet" class="btn btn-dark btn-lg btn-block button_alignment">Submit</button>
           </div>
         </form>
@@ -27,6 +27,23 @@
           <strong> Error!</strong> {{bet_error_message}}
           <button type="button" class="btn-close" data-bs-dismiss="alert" @click="disableButton"></button>
         </div>
+      </div>
+      <div class="section" v-if="grandPrix && setBet">
+        <form @submit.prevent="handleUpdate">
+          <h2 class="section-header">Place your bet</h2>
+          <p>Your placed bet for <b>{{grandPrix}}</b> - Round Nr.: <b>{{roundNr}}</b></p>
+          <div class="output-container">
+            <h5>P10:</h5>
+            <p><b>{{setBet[0].p10.FamilyName}}, {{setBet[0].p10.GivenName}}</b></p>
+            <p><b>{{setBet[0].p10.code}}</b></p>
+          </div>
+          <div class="output-container">
+            <h5>FirstDNF:</h5>
+            <p><b>{{setBet[1].firstDNF.FamilyName}}, {{setBet[1].firstDNF.GivenName}}</b></p>
+            <p><b>{{setBet[1].firstDNF.code}}</b></p>
+          </div>
+        </form>
+        <button type="submit" class="btn btn-dark btn-lg btn-block button_alignment" @click="this.$router.push('/updateBet')">Update your Bet</button>
       </div>
       <div class="section" v-if="!grandPrix">
         <h2 class="section-header">Place your bet:</h2>
@@ -79,7 +96,7 @@
               </tr>
             </tbody>
           </table>
-          <div v-if="!friendsLists">
+          <div v-if="friendsLists.length === 0">
             <p>Looks like, you have not added Friends yet! :(</p>
           </div>
 
@@ -121,7 +138,8 @@ export default {
       bet_minutes: '',
       bet_seconds: '',
       bet_startDate: '',
-      intervalId: null
+      intervalId: null,
+      setBet: ''
     }
   },
   async beforeMount() {
@@ -157,6 +175,17 @@ export default {
     } catch (e) {
       console.log(e)
     }
+    try {
+      const betForUser = await axios.get('/getBets', {
+        params: {
+          uid: this.user._id
+        }
+      })
+      this.setBet = betForUser.data
+      console.log(this.setBet)
+    } catch (e) {
+      console.log(e)
+    }
 
   },
   methods: {
@@ -170,17 +199,20 @@ export default {
           data: {
             uid: this.user._id,
             p10: this.p10in,
-            firstDNF: this.firstDNF
+            firstDNF: this.firstDNFin
           }
         })
         let buttonSubmitBet = document.getElementById('btn_submit_bet')
         buttonService.buttonSuccess(buttonSubmitBet)
+        this.setBet = await axios.get('/getBets', {
+          params: {
+            uid: this.user._id
+          }
+        })
 
       } catch (e) {
-        if(e.response.status === 403) {
-          this.bet_error = true
-          this.bet_error_message = e.response.data.message
-        }
+        this.bet_error = true
+        this.bet_error_message = e.response.data.message
       }
     },
     disableButton(){
